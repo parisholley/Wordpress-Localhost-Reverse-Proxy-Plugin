@@ -8,52 +8,32 @@ Author: Paris Holley
 Author URI: http://parisholley.com/
 */
 
-define('LOCALHOST_PROXIED', $_SERVER['HTTP_X_FORWARDED_HOST'] && strpos($_SERVER['HTTP_X_FORWARDED_HOST'], ':') !== false);
-
-if(LOCALHOST_PROXIED){
+if( $_SERVER['HTTP_X_FORWARDED_HOST'] && strpos($_SERVER['HTTP_X_FORWARDED_HOST'], ':') !== false ){
 	define('COOKIE_DOMAIN', '');
-}
 
-// disable forcing of network admin domain checking
-add_filter('redirect_network_admin_request', function(){
-	return false;
-});
+	// disable forcing of network admin domain checking
+	add_filter('redirect_network_admin_request', function(){
+		return false;
+	});
 
-add_filter('login_url', function(){
-	if( $_SERVER['SCRIPT_NAME'] == '/wp-admin/index.php' && LOCALHOST_PROXIED){
+	add_filter('login_url', function(){
 		return "http://" . $_SERVER['HTTP_X_FORWARDED_HOST'] . "/wp-login.php";
-	}
-});
+	});
 
-add_filter('admin_url', function($url, $path){
-	if(LOCALHOST_PROXIED){
+	add_filter('admin_url', function($url, $path){
 		return "http://" . $_SERVER['HTTP_X_FORWARDED_HOST'] . "/wp-admin/" . $path;
-	}
+	}, 11, 2);
 
-	return $url;
-}, 11, 2);
-
-add_filter('network_site_url', function($url, $path){
-	if(LOCALHOST_PROXIED){
+	add_filter('network_site_url', function($url, $path){
 		return "http://" . $_SERVER['HTTP_X_FORWARDED_HOST'] . "/" . $path;
-	}
+	}, 10, 2);
 
-	return false;
-}, 10, 2);
-
-add_filter('site_url', function($url, $path){
-	if(LOCALHOST_PROXIED){
+	add_filter('site_url', function($url, $path){
 		return "http://" . $_SERVER['HTTP_X_FORWARDED_HOST']  . "/" . $path;
-	}
+	}, 10, 2);
 
-	return false;
-}, 10, 2);
-
-add_filter('content_url', function($url, $path){
-	if(LOCALHOST_PROXIED){
+	add_filter('content_url', function($url, $path){
 		return "http://" . $_SERVER['HTTP_X_FORWARDED_HOST'] . "/wp-content" . $path;
-	}
-
-	return false;
-}, 10, 2);
+	}, 10, 2);
+}
 ?>
